@@ -2,7 +2,8 @@
 
 namespace PhpOffice\PhpSpreadsheet\Writer;
 
-use HTMLPurifier;
+use Symfony\Component\HtmlSanitizer\HtmlSanitizer;
+use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 use PhpOffice\PhpSpreadsheet\Calculation\Calculation;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
@@ -1770,12 +1771,10 @@ class Html extends BaseWriter
     {
         $result = '';
         if (!$this->isPdf && isset($worksheet->getComments()[$coordinate])) {
-            $sanitizer = new HTMLPurifier();
-            $cachePath = File::sysGetTempDir() . '/phpsppur';
-            if (is_dir($cachePath) || mkdir($cachePath)) {
-                $sanitizer->config->set('Cache.SerializerPath', $cachePath);
-            }
-            $sanitizedString = $sanitizer->purify($worksheet->getComment($coordinate)->getText()->getPlainText());
+            $config = (new HtmlSanitizerConfig())->allowSafeElements();
+            $sanitizer = new HtmlSanitizer($config);
+
+            $sanitizedString = $sanitizer->sanitize($worksheet->getComment($coordinate)->getText()->getPlainText());
             if ($sanitizedString !== '') {
                 $result .= '<a class="comment-indicator"></a>';
                 $result .= '<div class="comment">' . nl2br($sanitizedString) . '</div>';
