@@ -1771,7 +1771,7 @@ class Html extends BaseWriter
     {
         $result = '';
         if (!$this->isPdf && isset($worksheet->getComments()[$coordinate])) {
-            $config = (new HtmlSanitizerConfig())->allowSafeElements();
+            $config = (new HtmlSanitizerConfig())->allowSafeElements()->allowRelativeLinks();
             $sanitizer = new HtmlSanitizer($config);
 
             $sanitizedString = $sanitizer->sanitize($worksheet->getComment($coordinate)->getText()->getPlainText());
